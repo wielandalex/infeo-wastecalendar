@@ -1,6 +1,6 @@
 [project]
 name = "infeo-wastecalendar"
-version = "0.0.1"
+version = "0.0.2"
 authors = [
     { name = "Alexander Wieland", email = "alexanderwieland0@gmail.com" }
 ]
@@ -13,6 +13,9 @@ classifiers = [
 ]
 license = "MIT"
 license-files = ["LICEN[CS]E*"]
+dependencies = [
+    "httpx",
+]
 
 [project.urls]
 Homepage = "https://github.com/wielandalex/infeo-wastecalendar"
