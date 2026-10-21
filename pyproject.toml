@@ -1,0 +1,23 @@
+[project]
+name = "infeo-wastecalendar"
+version = "0.0.1"
+authors = [
+    { name = "Alexander Wieland", email = "alexanderwieland0@gmail.com" }
+]
+description = "Client for the Infeo Wastecalendar API"
+readme = "README.md"
+requires-python = ">=3.9"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+license = "MIT"
+license-files = ["LICEN[CS]E*"]
+
+[project.urls]
+Homepage = "https://github.com/wielandalex/infeo-wastecalendar"
+Issues = "https://github.com/wielandalex/infeo-wastecalendar/issues"
+
+[build-system]
+requires = ["hatchling >= 1.26"]
+build-backend = "hatchling.build"
