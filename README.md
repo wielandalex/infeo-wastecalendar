@@ -1,4 +1,4 @@
-# Infeo Wastecalendar API Client
+# Unofficial Infeo Wastecalendar API Client
 
 Simple python library to interface with the Infeo Wastecalendar API.
 Used to retrieve the planned trash collection dates managed by users of Infeo software.
@@ -68,4 +68,21 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
+```
+
+### Other Formats
+
+The API also supports exports in pdf, csv and ical format.
+
+```python
+from infeo_wastecalendar import OutputType
+
+pdf_bytes = await client.async_get_export(
+    calendar.id,
+    city.id,
+    street.id,
+    housenumber,
+    [fraction.id for fraction in fractions],
+    OutputType.PDF,
+)
 ```
