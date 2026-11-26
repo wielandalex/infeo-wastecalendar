@@ -57,50 +57,46 @@ class InfeoWastecalendarAPI:
 
     async def async_get_calendars(self) -> list[Calendar]:
         """Return calendars."""
-        res = await self._session.request(
-            "GET",
+        async with await self._session.get(
             f"{self._base_url}/calendars/",
             params={"showUnpublishedCalendars": "false"},
-        )
-        calendars = [Calendar(obj) for obj in await res.json()]
-        return calendars
+        ) as res:
+            calendars = [Calendar(obj) for obj in await res.json()]
+            return calendars
 
     async def async_get_cities(self, calendar_id: int) -> list[City]:
         """Return cities."""
-        res = await self._session.request(
-            "GET", f"{self._base_url}/cities/", params={"calendarId": calendar_id}
-        )
-        cities = [City(obj) for obj in await res.json()]
-        return cities
+        async with await self._session.get(
+            f"{self._base_url}/cities/", params={"calendarId": calendar_id}
+        ) as res:
+            cities = [City(obj) for obj in await res.json()]
+            return cities
 
     async def async_get_streets(self, calendar_id: int, city_id: int) -> list[Street]:
         """Return streets."""
-        res = await self._session.request(
-            "GET",
+        async with await self._session.get(
             f"{self._base_url}/streets/",
             params={"calendarId": calendar_id, "cityId": city_id},
-        )
-        streets = [Street(obj) for obj in await res.json()]
-        return streets
+        ) as res:
+            streets = [Street(obj) for obj in await res.json()]
+            return streets
 
     async def async_get_housenumbers(
         self, calendar_id: int, street_id: int
     ) -> list[str]:
         "Return housenumbers."
-        res = await self._session.request(
-            "GET",
+        async with await self._session.get(
             f"{self._base_url}/housenumbers/",
             params={"calendarId": calendar_id, "streetId": street_id},
-        )
-        housenumbers = await res.json()
-        return housenumbers
+        ) as res:
+            housenumbers = await res.json()
+            return housenumbers
 
     async def async_get_fractions(
         self, calendar_id: int, city_id: int, street_id: int, housenumber: str
     ) -> list[Fraction]:
         """Return fractions."""
-        res = await self._session.request(
-            "GET",
+        async with await self._session.get(
             f"{self._base_url}/v2/fractions/",
             params={
                 "calendarId": calendar_id,
@@ -108,11 +104,11 @@ class InfeoWastecalendarAPI:
                 "streetId": street_id,
                 "housenumber": housenumber,
             },
-        )
-        obj = await res.json()
-        raw_fractions = obj["fractions"]
-        fractions = [Fraction(obj) for obj in raw_fractions]
-        return fractions
+        ) as res:
+            obj = await res.json()
+            raw_fractions = obj["fractions"]
+            fractions = [Fraction(obj) for obj in raw_fractions]
+            return fractions
 
     async def _async_get_collections(
         self,
@@ -132,8 +128,7 @@ class InfeoWastecalendarAPI:
         }
         if output_type:
             params["outputType"] = output_type
-        return await self._session.request(
-            "GET",
+        return await self._session.get(
             f"{self._base_url}/v2/export/",
             params=params,
         )
@@ -147,11 +142,11 @@ class InfeoWastecalendarAPI:
         fraction_ids: list[int],
     ) -> list[Collection]:
         """Return collections."""
-        res = await self._async_get_collections(
+        async with await self._async_get_collections(
             calendar_id, city_id, street_id, housenumber, fraction_ids, output_type=None
-        )
-        collections = [Collection(obj) for obj in await res.json()]
-        return collections
+        ) as res:
+            collections = [Collection(obj) for obj in await res.json()]
+            return collections
 
     async def async_get_export(
         self,
@@ -163,7 +158,7 @@ class InfeoWastecalendarAPI:
         output_type: OutputType,
     ) -> bytes:
         """Export collections in the specified format."""
-        res = await self._async_get_collections(
+        async with await self._async_get_collections(
             calendar_id, city_id, street_id, housenumber, fraction_ids, output_type
-        )
-        return await res.read()
+        ) as res:
+            return await res.read()
