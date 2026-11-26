@@ -21,12 +21,12 @@ import asyncio
 from datetime import datetime as dt
 
 from aiohttp import ClientSession
-from infeo_wastecalendar import WELL_KNOWN_BASE_URLS, InfeoWastecalendarAPI
+from infeo_wastecalendar import InfeoWastecalendarAPI, WellKnownBaseUrl
 
 
 async def main():
     async with ClientSession() as session:
-        client = InfeoWastecalendarAPI(session, WELL_KNOWN_BASE_URLS["Salzburg"])
+        client = InfeoWastecalendarAPI(session, WellKnownBaseUrl.SALZBURG)
 
         calendars = await client.async_get_calendars()
         calendar = calendars[0]

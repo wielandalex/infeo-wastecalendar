@@ -1,3 +1,5 @@
+from enum import StrEnum
+
 from aiohttp import ClientResponse, ClientResponseError, ClientSession
 
 from .calendar import Calendar
@@ -6,14 +8,13 @@ from .collection import Collection
 from .fraction import Fraction
 from .street import Street
 
-WELL_KNOWN_BASE_URLS = {
-    "Innsbruck": "https://services.infeo.at/aloa/api/ikb/wastecalendar",
-    "Klagenfurt": "https://services.infeo.at/awm/api/klagenfurt/wastecalendar",
-    "Leoben": "https://services.infeo.at/aloa/api/leoben/wastecalendar",
-    "Salzburg": "https://services.infeo.at/Awm/api/salzburg/wastecalendar",
-    "St. Pölten": "https://services.infeo.at/awm/api/st.pölten/wastecalendar",
-}
 
+class WellKnownBaseUrl(StrEnum):
+    INNSBRUCK = "https://services.infeo.at/aloa/api/ikb/wastecalendar"
+    KLAGENFURT = "https://services.infeo.at/awm/api/klagenfurt/wastecalendar"
+    LEOBEN = "https://services.infeo.at/aloa/api/leoben/wastecalendar"
+    SALZBURG = "https://services.infeo.at/Awm/api/salzburg/wastecalendar"
+    ST_POELTEN = "https://services.infeo.at/awm/api/st.pölten/wastecalendar"
 
 class InfeoWastecalendarError(Exception):
     """Base error of the Infeo Wastecalendar API."""
