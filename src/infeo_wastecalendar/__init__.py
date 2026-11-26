@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from enum import StrEnum
 
 from aiohttp import ClientResponse, ClientResponseError, ClientSession
@@ -16,13 +18,21 @@ class WellKnownBaseUrl(StrEnum):
     SALZBURG = "https://services.infeo.at/Awm/api/salzburg/wastecalendar"
     ST_POELTEN = "https://services.infeo.at/awm/api/st.pölten/wastecalendar"
 
+
+class OutputType(StrEnum):
+    PDF = "pdf"
+    CSV = "csv"
+    ICAL = "ical"
+
+
 class InfeoWastecalendarError(Exception):
     """Base error of the Infeo Wastecalendar API."""
 
 
 async def custom_raise_for_status(response: ClientResponse):
     code = response.status
-    text = await response.text()
+    if not response.ok:
+        text = await response.text()
     try:
         response.raise_for_status()
     except ClientResponseError as ex:
@@ -104,6 +114,30 @@ class InfeoWastecalendarAPI:
         fractions = [Fraction(obj) for obj in raw_fractions]
         return fractions
 
+    async def _async_get_collections(
+        self,
+        calendar_id: int,
+        city_id: int,
+        street_id: int,
+        housenumber: str,
+        fraction_ids: list[int],
+        output_type: str | None,
+    ) -> ClientResponse:
+        params = {
+            "calendarId": calendar_id,
+            "cityId": city_id,
+            "streetId": street_id,
+            "housenumber": housenumber,
+            "fractionIds": fraction_ids,
+        }
+        if output_type:
+            params["outputType"] = output_type
+        return await self._session.request(
+            "GET",
+            f"{self._base_url}/v2/export/",
+            params=params,
+        )
+
     async def async_get_collections(
         self,
         calendar_id: int,
@@ -113,16 +147,23 @@ class InfeoWastecalendarAPI:
         fraction_ids: list[int],
     ) -> list[Collection]:
         """Return collections."""
-        res = await self._session.request(
-            "GET",
-            f"{self._base_url}/v2/export/",
-            params={
-                "calendarId": calendar_id,
-                "cityId": city_id,
-                "streetId": street_id,
-                "housenumber": housenumber,
-                "fractionIds": fraction_ids,
-            },
+        res = await self._async_get_collections(
+            calendar_id, city_id, street_id, housenumber, fraction_ids, output_type=None
         )
         collections = [Collection(obj) for obj in await res.json()]
         return collections
+
+    async def async_get_export(
+        self,
+        calendar_id: int,
+        city_id: int,
+        street_id: int,
+        housenumber: str,
+        fraction_ids: list[int],
+        output_type: OutputType,
+    ) -> bytes:
+        """Export collections in the specified format."""
+        res = await self._async_get_collections(
+            calendar_id, city_id, street_id, housenumber, fraction_ids, output_type
+        )
+        return await res.read()
