@@ -1,10 +1,10 @@
 [project]
 name = "infeo-wastecalendar"
-version = "0.0.3"
+version = "0.1.0"
 authors = [
     { name = "Alexander Wieland", email = "alexanderwieland0@gmail.com" }
 ]
-description = "Client for the Infeo Wastecalendar API"
+description = "Unofficial client for the Infeo Wastecalendar API"
 readme = "README.md"
 requires-python = ">=3.9"
 classifiers = [
