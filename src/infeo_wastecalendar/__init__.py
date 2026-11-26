@@ -1,4 +1,4 @@
-from aiohttp import ClientSession
+from aiohttp import ClientResponse, ClientResponseError, ClientSession
 
 from .calendar import Calendar
 from .city import City
@@ -19,8 +19,15 @@ class InfeoWastecalendarError(Exception):
     """Base error of the Infeo Wastecalendar API."""
 
 
-class InfeoWastecalendarConnectionError(InfeoWastecalendarError):
-    """Connection error of the Infeo Wastecalendar API."""
+async def custom_raise_for_status(response: ClientResponse):
+    code = response.status
+    text = await response.text()
+    try:
+        response.raise_for_status()
+    except ClientResponseError as ex:
+        raise InfeoWastecalendarError(
+            f"Error in API request. Code: {code} Text: {text}"
+        ) from ex
 
 
 class InfeoWastecalendarAPI:
@@ -29,6 +36,7 @@ class InfeoWastecalendarAPI:
     def __init__(self, session: ClientSession, base_url: str):
         """Use one of the base URLs listed in `WELL_KNOWN_BASE_URLS`
         or provide a custom one."""
+        session._raise_for_status = custom_raise_for_status
         self._session = session
 
         # Remove trailing slash from base_url
@@ -43,7 +51,6 @@ class InfeoWastecalendarAPI:
             f"{self._base_url}/calendars/",
             params={"showUnpublishedCalendars": "false"},
         )
-        res.raise_for_status()
         calendars = [Calendar(obj) for obj in await res.json()]
         return calendars
 
@@ -52,7 +59,6 @@ class InfeoWastecalendarAPI:
         res = await self._session.request(
             "GET", f"{self._base_url}/cities/", params={"calendarId": calendar_id}
         )
-        res.raise_for_status()
         cities = [City(obj) for obj in await res.json()]
         return cities
 
@@ -63,7 +69,6 @@ class InfeoWastecalendarAPI:
             f"{self._base_url}/streets/",
             params={"calendarId": calendar_id, "cityId": city_id},
         )
-        res.raise_for_status()
         streets = [Street(obj) for obj in await res.json()]
         return streets
 
@@ -76,7 +81,6 @@ class InfeoWastecalendarAPI:
             f"{self._base_url}/housenumbers/",
             params={"calendarId": calendar_id, "streetId": street_id},
         )
-        res.raise_for_status()
         housenumbers = await res.json()
         return housenumbers
 
@@ -94,7 +98,6 @@ class InfeoWastecalendarAPI:
                 "housenumber": housenumber,
             },
         )
-        res.raise_for_status()
         obj = await res.json()
         raw_fractions = obj["fractions"]
         fractions = [Fraction(obj) for obj in raw_fractions]
@@ -120,6 +123,5 @@ class InfeoWastecalendarAPI:
                 "fractionIds": fraction_ids,
             },
         )
-        res.raise_for_status()
         collections = [Collection(obj) for obj in await res.json()]
         return collections
